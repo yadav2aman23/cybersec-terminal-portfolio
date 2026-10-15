@@ -6,8 +6,8 @@ export const profile = {
   tagline: "Learning to understand systems, investigate incidents, and build safer technology.",
   location: "India",
   email: "", // Optional: add a public contact email, or leave blank.
-  linkedin: "https://www.linkedin.com/", // Replace with your personal LinkedIn profile URL.
-  tryhackme: "https://tryhackme.com/", // Replace with your personal TryHackMe profile URL.
+  linkedin: "https://www.linkedin.com/in/aman-kumar-yadav-968404379?utm_source=share_via&utm_content=profile&utm_medium=member_android/", // Replace with your personal LinkedIn profile URL.
+  tryhackme: "https://tryhackme.com/p/yadaviactaman2030?utm_campaign=social_share&utm_medium=social&utm_content=profile&cardVersion=0329b99c7b24&utm_source=copy&sharerId=6a4073d2c25abd541659778f/", // Replace with your personal TryHackMe profile URL.
 };
 
 export const focusAreas = [
