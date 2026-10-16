@@ -34,11 +34,14 @@ export default function AdminLogin({ onAdminLogin, onClose }) {
             }
 
             onAdminLogin(credential.user);
-        } catch {
-            setError("Login failed. Check your email and password.");
+
+        } catch (err) {
+            console.error("Firebase login error:", err.code, err.message);
+            setError(`Login error: ${err.code || "unknown-error"}`);
         } finally {
             setLoading(false);
         }
+
     }
 
     return (

@@ -1,6 +1,8 @@
 import AdminLogin from "./AdminLogin";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import { auth } from "./firebase";
+import AdminDashboard from "./AdminDashboard";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth, db } from "./firebase";
+import { doc, onSnapshot } from "firebase/firestore";
 
 
 
@@ -48,6 +50,7 @@ function BootScreen({ onFinish }) {
           <div className="progress-track"><div className="progress-fill" style={{ width: `${visible / lines.length * 100}%` }} /></div>
           <p className="boot-hint">Press enter to continue <span className="cursor">_</span></p>
 
+
         </div>
       </div>
     </div>
@@ -66,6 +69,8 @@ function App() {
   const [lastUpdated, setLastUpdated] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const [showAdminDashboard, setShowAdminDashboard] = useState(false);
+  const [liveLeadership, setLiveLeadership] = useState(null);
 
   async function loadGitHub() {
     setRepoState("loading");
@@ -105,6 +110,13 @@ function App() {
     return unsubscribe;
   }, []);
 
+  useEffect(() => {
+    const unsubscribe = onSnapshot(doc(db, "portfolio", "leadership"), (snapshot) => {
+      setLiveLeadership(snapshot.exists() ? snapshot.data() : null);
+    }, (error) => { console.error("Public leadership data could not load:", error); });
+    return unsubscribe;
+  }, []);
+
 
   if (booting) return <BootScreen onFinish={() => setBooting(false)} />;
 
@@ -130,13 +142,13 @@ function App() {
           className="status-pill"
           onClick={() => {
             if (currentUser) {
-              signOut(auth);
+              setShowAdminDashboard(true);
             } else {
               setShowAdminLogin(true);
             }
           }}
         >
-          {currentUser ? "ADMIN LOGOUT" : "ADMIN LOGIN"}
+          {currentUser ? "ADMIN PANEL" : "ADMIN LOGIN"}
         </button>
 
       </header>
@@ -208,17 +220,20 @@ function App() {
             title="Coordination & teamwork."
           />
           <div className="featured-grid">
-            {leadership.map((item, index) => (
+            {liveLeadership ? (
+              <article className="featured-card" key="live-leadership">
+                {liveLeadership.imageUrl && <img src={liveLeadership.imageUrl} alt={liveLeadership.eventName || "Workshop"} className="highlight-image" loading="lazy" />}
+                <p className="card-kicker">COORDINATION & LEADERSHIP</p>
+                <h3>{liveLeadership.coordinatorName || "Coordinator details"}</h3>
+                {liveLeadership.designation && <p><strong>{liveLeadership.designation}</strong></p>}
+                {liveLeadership.eventName && <p>{liveLeadership.eventName}</p>}
+                {liveLeadership.description && <p>{liveLeadership.description}</p>}
+              </article>
+            ) : leadership.map((item, index) => (
               <article className="featured-card" key={`${item.title}-${index}`}>
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="highlight-image"
-                />
-                <h3>{item.title}</h3>
-                <p><strong>{item.role}</strong></p>
-                <p>{item.event}</p>
-                <p>{item.description}</p>
+                {item.image && <img src={item.image} alt={item.title} className="highlight-image" loading="lazy" />}
+                <p className="card-kicker">COORDINATION & LEADERSHIP</p>
+                <h3>{item.title}</h3><p><strong>{item.role}</strong></p><p>{item.event}</p><p>{item.description}</p>
               </article>
             ))}
           </div>
@@ -252,8 +267,18 @@ function App() {
 
       {showAdminLogin && (
         <AdminLogin
-          onAdminLogin={() => setShowAdminLogin(false)}
+          onAdminLogin={() => {
+            setShowAdminLogin(false);
+            setShowAdminDashboard(true);
+          }}
           onClose={() => setShowAdminLogin(false)}
+        />
+      )}
+
+      {showAdminDashboard && currentUser && (
+        <AdminDashboard
+          adminUid={currentUser.uid}
+          onClose={() => setShowAdminDashboard(false)}
         />
       )}
 
