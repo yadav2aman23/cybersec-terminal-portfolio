@@ -3,3 +3,10 @@ dist/
 .env
 .env.*
 !.env.example
+
+# Firebase local cache
+.firebase/
+
+# Local source backups
+src/*.before-*
+src/*.bak
